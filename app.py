@@ -46,7 +46,7 @@ def about():
 @app.route('/detect', methods=['POST'])
 def detect():
     """
-    API endpoint to upload an image and run YOLO11 detection.
+    API endpoint to upload an image and run detection algorithms.
     """
     logger.info("Detect endpoint called.")
     
@@ -154,5 +154,5 @@ def request_entity_too_large(error):
     }), 413
 
 if __name__ == '__main__':
-    # Run development server
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Run development server on port 8080 to avoid conflicts
+    app.run(host='0.0.0.0', port=8080, debug=True)
