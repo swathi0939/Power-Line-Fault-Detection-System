@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Power Line Fault Detection System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-glass sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fa-solid fa-bolt text-warning me-2 fs-3"></i>
+                <span class="brand-text fs-4">PowerShield AI</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link-custom" href="/"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom active" href="/about"><i class="fa-solid fa-circle-info me-1"></i> About System</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="theme-switch" id="themeToggleBtn" aria-label="Toggle Theme">
+                            <i class="fas fa-sun" id="themeIcon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container my-4 flex-grow-1">
+        
+        <!-- Title Header -->
+        <section class="hero-section text-center py-4">
+            <h1 class="hero-title">System <span>Technical Details</span></h1>
+            <p class="text-secondary mx-auto fs-5" style="max-width: 600px;">
+                Deep learning architectural breakdown and model performance analysis.
+            </p>
+        </section>
+
+        <!-- Technical Description -->
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- Problem Statement Card -->
+                <div class="glass-panel p-4 mb-4">
+                    <h3 class="h4 mb-3 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Problem Statement</h3>
+                    <p class="text-secondary">
+                        Electrical transmission lines are exposed to extreme environmental weathering, chemical dust, saline air, and mechanical loading. Insulators play a critical role in preventing leakage current from flowing to the support towers. 
+                        Faulty insulators—either <strong>broken mechanical shells</strong> or <strong>polluted surface interfaces</strong>—leads to leakage pathways and catastrophic electrical <strong>pollution flashovers</strong>. 
+                        Manually inspecting thousands of miles of lines via helicopter or ground crews is slow, dangerous, and expensive. This AI system automates the inspection using computer vision on UAV/drone aerial imagery.
+                    </p>
+                </div>
+
+                <!-- Model & Dataset Card -->
+                <div class="glass-panel p-4 mb-4">
+                    <h3 class="h4 mb-3 text-primary"><i class="fa-solid fa-network-wired me-2"></i>YOLO11 Model & Dataset</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h5 class="text-primary-emphasis">YOLO11 Object Detector</h5>
+                            <p class="text-secondary small">
+                                The system leverages the Ultralytics YOLO11 model, the cutting edge of real-time single-stage object detectors. YOLO11 features an enhanced backbone architecture with C3k2 modules, an optimized anchor-free head, and dynamic attention layers. This enables highly precise localizations of small defects (like chip fractures) in high-resolution survey frames.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-primary-emphasis">Insulator Survey Dataset</h5>
+                            <p class="text-secondary small">
+                                Fine-tuned on standard aerial inspection data featuring insulators in variable environments (rural, desert, industrial). The training labels isolate three classes:
+                            </p>
+                            <ul class="text-secondary small">
+                                <li><strong>Broken Insulator:</strong> Missing shells, fracture damage.</li>
+                                <li><strong>Pollution Flashover:</strong> Salt/chemical coating deposition.</li>
+                                <li><strong>Normal Insulator:</strong> Fully intact clean glass/porcelain string.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training & Optimization Card -->
+                <div class="glass-panel p-4 mb-4">
+                    <h3 class="h4 mb-3 text-warning"><i class="fa-solid fa-sliders me-2"></i>Model Training Process</h3>
+                    <p class="text-secondary">
+                        The model `best.pt` was trained on high-performance GPU instances using the PyTorch training environment. Main parameters include:
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover border border-secondary-subtle rounded-3">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Value</th>
+                                    <th>Purpose</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">Input Frame Resolution</td>
+                                    <td class="font-monospace">640 x 640</td>
+                                    <td>Optimal balance between detecting small fractures and inference speed.</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Optimizer</td>
+                                    <td class="font-monospace">AdamW</td>
+                                    <td>Provides stable weight decay for complex convolutional layers.</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Augmentation Pipeline</td>
+                                    <td class="font-monospace">Mosaic & MixUp</td>
+                                    <td>Synthesizes training samples to make models robust to diverse lighting.</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">Inference Speed</td>
+                                    <td class="font-monospace">~15ms (GPU)</td>
+                                    <td>Allows real-time video stream inspection on autonomous drone platforms.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Applications & Future Scope Card -->
+                <div class="glass-panel p-4 mb-4">
+                    <h3 class="h4 mb-3 text-success"><i class="fa-solid fa-compass me-2"></i>Applications & Future Scope</h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h5 class="text-success-emphasis">Core Applications</h5>
+                            <ul class="text-secondary small">
+                                <li><strong>UAV Survey Swarms:</strong> Deploy autonomously flying inspection drones that log coordinate-tagged fault reports on the fly.</li>
+                                <li><strong>Predictive Maintenance:</strong> Build a temporal database of insulator degradation over time to replace units prior to grid failures.</li>
+                                <li><strong>Substation Cam Inspections:</strong> Static smart camera systems monitoring adjacent towers 24/7.</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-success-emphasis">Future Scope</h5>
+                            <ul class="text-secondary small">
+                                <li><strong>Multi-Sensor Fusion:</strong> Incorporate thermal/infrared payloads to identify invisible internal resistance heating.</li>
+                                <li><strong>3D Defect Reconstruction:</strong> Use photogrammetry to build 3D virtual representations of damaged insulator strings.</li>
+                                <li><strong>Edge Computing:</strong> Package inference into embedded platforms like NVIDIA Jetson for on-device processing.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-1">&copy; 2026 PowerShield AI. All rights reserved.</p>
+            <p class="small text-secondary mb-0">Commercial Grid Monitoring System &bull; Powered by PyTorch & YOLOv11</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Theme Switcher Javascript Logic -->
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        // Read theme from storage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        function updateIcon(theme) {
+            if (theme === 'light') {
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+    </script>
+</body>
+</html>

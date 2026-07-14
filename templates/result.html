@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inference Results - Power Line Fault Detection System</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-glass sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fa-solid fa-bolt text-warning me-2 fs-3"></i>
+                <span class="brand-text fs-4">PowerShield AI</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link-custom" href="/"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom" href="/about"><i class="fa-solid fa-circle-info me-1"></i> About System</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="theme-switch" id="themeToggleBtn" aria-label="Toggle Theme">
+                            <i class="fas fa-sun" id="themeIcon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container my-4 flex-grow-1">
+        
+        <!-- Header -->
+        <section class="hero-section text-center py-3">
+            <h1 class="hero-title">Inspection <span>Analysis Report</span></h1>
+            <p class="text-secondary mx-auto fs-5" style="max-width: 600px;">
+                Detailed metrics of anomalies detected in the survey image.
+            </p>
+        </section>
+
+        <!-- Prediction Results Panel -->
+        <section id="resultsPanel" class="mt-2">
+            <div class="row g-4">
+                
+                <!-- Comparison Section -->
+                <div class="col-12">
+                    <div class="glass-panel p-4">
+                        <h3 class="h5 mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i>Analysis Comparison</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-2 border rounded-4 border-secondary-subtle bg-black bg-opacity-25">
+                                    <h5 class="text-center small text-secondary mb-2 uppercase">Original Survey Image</h5>
+                                    <img src="{{ original_url }}" class="img-fluid rounded-3 w-100" style="max-height: 480px; object-fit: contain;" alt="Original source">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-2 border rounded-4 border-secondary-subtle bg-black bg-opacity-25">
+                                    <h5 class="text-center small text-secondary mb-2 uppercase">Predicted Faults Overlay</h5>
+                                    <img src="{{ predicted_url }}" class="img-fluid rounded-3 w-100" style="max-height: 480px; object-fit: contain;" alt="Predictions results">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary Row -->
+                <div class="col-12">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-total">
+                                <div class="stat-val">{{ summary["Total Faults"] }}</div>
+                                <div class="stat-label">Total Faults</div>
+                                <i class="fa-solid fa-triangle-exclamation stat-icon text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-broken">
+                                <div class="stat-val">{{ summary["Broken Insulator"] }}</div>
+                                <div class="stat-label">Broken Insulators</div>
+                                <i class="fa-solid fa-circle-xmark stat-icon text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-pollution">
+                                <div class="stat-val">{{ summary["Pollution Flashover"] }}</div>
+                                <div class="stat-label">Pollution Flashover</div>
+                                <i class="fa-solid fa-radiation stat-icon text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-normal">
+                                <div class="stat-val">{{ summary["Normal Insulator"] }}</div>
+                                <div class="stat-label">Normal Insulators</div>
+                                <i class="fa-solid fa-circle-check stat-icon text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Details and Metadata Summary -->
+                <div class="col-lg-7">
+                    <div class="glass-panel p-4 h-100">
+                        <h4 class="h5 mb-4"><i class="fa-solid fa-list-check text-primary me-2"></i>Prediction Table</h4>
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover align-middle mb-0" id="predictionTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Class Name</th>
+                                        <th>Confidence</th>
+                                        <th>Bounding Box [x1, y1, x2, y2]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if predictions|length == 0 %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">No objects detected.</td>
+                                    </tr>
+                                    {% else %}
+                                        {% for pred in predictions %}
+                                        <tr>
+                                            <td class="fw-bold">{{ loop.index }}</td>
+                                            <td>
+                                                <span class="badge-fault 
+                                                    {% if pred.class_name == 'Broken Insulator' %}
+                                                        badge-broken
+                                                    {% elif pred.class_name == 'Pollution Flashover' %}
+                                                        badge-pollution
+                                                    {% else %}
+                                                        badge-normal
+                                                    {% endif %}
+                                                ">
+                                                    {{ pred.class_name }}
+                                                </span>
+                                            </td>
+                                            <td class="fw-semibold">{{ (pred.confidence * 100)|round(1) }}%</td>
+                                            <td class="font-monospace text-secondary" style="font-size: 0.85rem;">
+                                                [{{ pred.bbox[0]|round|int }}, {{ pred.bbox[1]|round|int }}, {{ pred.bbox[2]|round|int }}, {{ pred.bbox[3]|round|int }}]
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadata Card -->
+                <div class="col-lg-5">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h4 class="h5 mb-4"><i class="fa-solid fa-microchip text-primary me-2"></i>Detection Timeline & Metadata</h4>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-regular fa-clock me-2"></i>Detection Time</span>
+                                <span class="metadata-val text-info">{{ detection_time_ms }} ms</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-server me-2"></i>Hardware Device</span>
+                                <span class="metadata-val text-primary">{{ device|upper }}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-up-right-and-down-left-from-center me-2"></i>Resolution</span>
+                                <span class="metadata-val">{{ resolution }}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-crosshairs me-2"></i>Total Detected Objects</span>
+                                <span class="metadata-val">{{ predictions|length }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Final Page Actions -->
+                        <div class="mt-4 pt-3 border-top border-secondary-subtle d-flex gap-2">
+                            <a href="/download/{{ filename }}" class="btn btn-glass flex-grow-1 text-center">
+                                <i class="fa-solid fa-circle-down me-1"></i> Download Result
+                            </a>
+                            <a href="/" class="btn btn-secondary-glass flex-grow-1 text-center">
+                                <i class="fa-solid fa-rotate-left me-1"></i> Upload Another
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-1">&copy; 2026 PowerShield AI. All rights reserved.</p>
+            <p class="small text-secondary mb-0">Commercial Grid Monitoring System &bull; Powered by PyTorch & YOLOv11</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Theme Switcher Javascript Logic -->
+    <script>
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        // Read theme from storage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        function updateIcon(theme) {
+            if (theme === 'light') {
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+    </script>
+</body>
+</html>

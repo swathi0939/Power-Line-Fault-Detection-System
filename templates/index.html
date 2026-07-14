@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Line Fault Detection System - YOLO11</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-glass sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fa-solid fa-bolt text-warning me-2 fs-3"></i>
+                <span class="brand-text fs-4">PowerShield AI</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link-custom active" href="/"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link-custom" href="/about"><i class="fa-solid fa-circle-info me-1"></i> About System</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="theme-switch" id="themeToggleBtn" aria-label="Toggle Theme">
+                            <i class="fas fa-sun" id="themeIcon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container my-3 flex-grow-1">
+        
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Power Line <span>Fault Detection</span></h1>
+            <p class="text-secondary mx-auto fs-5" style="max-width: 700px;">
+                Commercial-grade artificial intelligence dashboard for automatic insulator health monitoring. Powered by high-speed YOLO11.
+            </p>
+        </section>
+
+        <!-- Error Dialog -->
+        <div class="alert alert-glass d-none d-flex align-items-center justify-content-between p-3 mb-4" id="errorMessage" role="alert">
+            <!-- Filled dynamically -->
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Upload Panel -->
+            <div class="col-lg-8">
+                <div class="glass-panel p-4">
+                    <h3 class="h5 mb-3"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>Upload Survey Image</h3>
+                    
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.bmp" class="d-none">
+                        
+                        <!-- Initial Prompt -->
+                        <div id="uploadPrompt" class="py-4">
+                            <i class="fa-solid fa-images upload-icon"></i>
+                            <h4 class="h5 mb-2 fw-semibold">Drag & Drop survey photograph here</h4>
+                            <p class="text-secondary small mb-3">or click to browse local files</p>
+                            <span class="badge bg-secondary-subtle text-secondary py-2 px-3 rounded-pill" style="font-size: 0.75rem;">JPG, JPEG, PNG, BMP (Max 20MB)</span>
+                        </div>
+                        
+                        <!-- Image Preview Container -->
+                        <div id="previewContainer" class="d-none">
+                            <img id="imagePreview" src="" alt="Source preview">
+                            
+                            <!-- Scanner Overlay -->
+                            <div class="scan-overlay" id="scanOverlay">
+                                <div class="scan-line"></div>
+                                <div class="spinner-border text-info" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5 class="scanner-text text-info">ANALYZING GRID INTEGRITY...</h5>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4 text-center d-none" id="actionButtons">
+                        <button class="btn btn-glass px-4 me-2" id="detectBtn">
+                            <i class="fa-solid fa-magnifying-glass-chart me-1"></i> Detect Faults
+                        </button>
+                        <button class="btn btn-secondary-glass px-4" id="resetBtn">
+                            <i class="fa-solid fa-trash me-1"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Results (Initially Hidden) -->
+        <section id="resultsPanel" class="mt-5 d-none">
+            <div class="row g-4">
+                
+                <!-- Comparison Section -->
+                <div class="col-12">
+                    <div class="glass-panel p-4">
+                        <h3 class="h5 mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i>Analysis Comparison</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-2 border rounded-4 border-secondary-subtle bg-black bg-opacity-25">
+                                    <h5 class="text-center small text-secondary mb-2 uppercase">Original Survey Image</h5>
+                                    <img id="originalImg" src="" class="img-fluid rounded-3 w-100" style="max-height: 480px; object-fit: contain;" alt="Original source">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-2 border rounded-4 border-secondary-subtle bg-black bg-opacity-25">
+                                    <h5 class="text-center small text-secondary mb-2 uppercase">Predicted Faults Overlay</h5>
+                                    <img id="predictedImg" src="" class="img-fluid rounded-3 w-100" style="max-height: 480px; object-fit: contain;" alt="Predictions results">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Summary Row -->
+                <div class="col-12">
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-total">
+                                <div class="stat-val" id="valTotalFaults">0</div>
+                                <div class="stat-label">Total Faults</div>
+                                <i class="fa-solid fa-triangle-exclamation stat-icon text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-broken">
+                                <div class="stat-val" id="valBroken">0</div>
+                                <div class="stat-label">Broken Insulators</div>
+                                <i class="fa-solid fa-circle-xmark stat-icon text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-pollution">
+                                <div class="stat-val" id="valPollution">0</div>
+                                <div class="stat-label">Pollution Flashover</div>
+                                <i class="fa-solid fa-radiation stat-icon text-warning"></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="stat-card card-normal">
+                                <div class="stat-val" id="valNormal">0</div>
+                                <div class="stat-label">Normal Insulators</div>
+                                <i class="fa-solid fa-circle-check stat-icon text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Details and Metadata Summary -->
+                <div class="col-lg-7">
+                    <div class="glass-panel p-4 h-100">
+                        <h4 class="h5 mb-4"><i class="fa-solid fa-list-check text-primary me-2"></i>Prediction Table</h4>
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover align-middle mb-0" id="predictionTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Class Name</th>
+                                        <th>Confidence</th>
+                                        <th>Bounding Box [x1, y1, x2, y2]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadata Card -->
+                <div class="col-lg-5">
+                    <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h4 class="h5 mb-4"><i class="fa-solid fa-microchip text-primary me-2"></i>Detection Timeline & Metadata</h4>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-regular fa-clock me-2"></i>Detection Time</span>
+                                <span class="metadata-val text-info" id="metaTime">0 ms</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-server me-2"></i>Hardware Device</span>
+                                <span class="metadata-val text-primary" id="metaDevice">CPU</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-up-right-and-down-left-from-center me-2"></i>Resolution</span>
+                                <span class="metadata-val" id="metaResolution">0x0</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label"><i class="fa-solid fa-crosshairs me-2"></i>Total Detected Objects</span>
+                                <span class="metadata-val" id="metaObjects">0</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Final Page Actions -->
+                        <div class="mt-4 pt-3 border-top border-secondary-subtle d-flex gap-2">
+                            <button class="btn btn-glass flex-grow-1" id="downloadBtn">
+                                <i class="fa-solid fa-circle-down me-1"></i> Download Result
+                            </button>
+                            <button class="btn btn-secondary-glass flex-grow-1" id="uploadAnotherBtn">
+                                <i class="fa-solid fa-rotate-left me-1"></i> Upload Another
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-1">&copy; 2026 PowerShield AI. All rights reserved.</p>
+            <p class="small text-secondary mb-0">Commercial Grid Monitoring System &bull; Powered by PyTorch & YOLOv11</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Main Script JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+app_server.log
+static/uploads/*
+static/predictions/*
